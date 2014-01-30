@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Crossfilter</title>
+<link rel="stylesheet" href="css/style.css" />
+
+<script src="js/crossfilter.v1.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/dc.js"></script>
+<script src="js/jquery-1.8.0.min.js"></script>
+<script src="js/airvantage-dc.js"></script>  
+
+<script type="text/javascript">
+  var server = "https://na.airvantage.net";
+  var client_id = "7f75f9a82d564e308d2b25debcded843";
+  var redirect_uri = "http://localhost:3000/redirect.html";
+
+  function _getURLParameter(search, name) {
+    var part = search.match(RegExp("[?|&|#]"+name+'=(.*?)(&|$)'));
+    if (part) return decodeURIComponent(part[1]);
+  }
+
+  function _authorize() {
+    var that = this;
+    window.oauthAuthorizationResponse = function(window, search) {
+      if (window == that._authorizationWindow)
+        that._authorizationResponse(search);
+    };
+
+    var authorizeWindowWidth = 500;
+    var authorizeWindowHeight = 500;
+    var authorizeURL = server + "/api/oauth/authorize?response_type=token&client_id=" + client_id + "&redirect_uri=" 
+      + encodeURIComponent(redirect_uri);
+
+    this._authorizationWindow = window.open(authorizeURL, 'oauthauthorize',
+    'width=' + authorizeWindowWidth
+    + ',height=' + authorizeWindowHeight
+    + ',left=' + (screen.width - authorizeWindowWidth) / 2
+    + ',top=' + (screen.height - authorizeWindowHeight) / 2
+    + ',menubar=no,toolbar=no');
+  }
+
+  function _authorizationResponse(hash, options) {
+    console.log(_getURLParameter(hash, 'access_token'));
+    access_token = _getURLParameter(hash, 'access_token');
+    console.log("token=" + access_token);
+    $('#token')[0].value = access_token;
+  }
+
+  function _handleClick()
+  {
+    var token = $('#token')[0].value;
+    loadAirVantageExport(server, document.formUrl.operationId.value, token);
+    return false; // prevent further bubbling of event
+  }
+</script>
+</head>
+
+<body>
+
+<h1>AirVantage Export Crossfilter</h1>
+
+<form name="formToken" onSubmit="javascript:_authorize();return false;">
+  <p>
+    <input type="input" name="token" id="token" placeholder="Enter your access token" size="36"/>
+    <input name="Submit"  type="submit" value="Get token" />
+  </p>
+</form>
+
+<form name="formUrl" onSubmit="return _handleClick()">
+  <p>
+  	<input type="input" name="operationId" id="operationId" placeholder="Enter the ID of the operation" size="32"/>
+  	<input name="Submit"  type="submit" value="Update" />
+  </p>
+</form>
+
+<div id="charts">
+</div>
+
+<div class="clearfix"></div>
+
+<div>
+    <a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+</div>
+
+<footer>
+  Based on <a href="http://square.github.io/crossfilter">crossfilter</a> and <a href="http://nickqizhu.github.io/dc.js/">dc.js</a></footer>.
+</footer>
+
+</body>
+
+<html>
+

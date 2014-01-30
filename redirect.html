@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AirVantage Export Crossfilter</title>
+
+  <script type="text/javascript">
+    // Pass the authorization back to the opener if necessary.
+    if (window.opener && window.opener.oauthAuthorizationResponse) {
+      if (window.opener.location.origin == window.location.origin) {
+        window.opener.oauthAuthorizationResponse(window, window.location.hash);
+        window.close();
+      } else {
+        console.log("Origins don't match; not passing on code.");
+      }
+    }
+    </script>
+</head>
+<body>
+
+</body>
+</html>
